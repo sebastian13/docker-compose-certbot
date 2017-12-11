@@ -1,0 +1,44 @@
+version: '3'
+
+services:
+  certbot:
+    image: certbot/certbot:latest
+    container_name: certbot
+    expose:
+      - "80"
+    volumes:
+      # Mount SSL directory of your nginx-proxy
+      - ../00-nginx-proxy/ssl:/etc/letsencrypt # SSL certs
+      - ../00-nginx-proxy/ssl-log:/var/log/letsencrypt # Logs
+    command: [
+            "certonly",
+            "--standalone",
+            "--preferred-challenges=http",
+            "--agree-tos",
+            "-m mail@example.com",
+
+            # Use the first Domain, or specifiy explicitly
+            # "--cert-name=example.com",
+
+            # Security Settings
+            # "--hsts", # Forcing browser to always use SSL for the domain.
+
+            # keep or renew?
+            #"--keep-until-expiring",
+            #"--force-renewal",
+
+            # testing the certbot
+            #"--dry-run",
+            #"--test-cert",
+            #"--break-my-certs", # replace valid certs with test certs
+
+            # All Domains, incl. Subdomains. (Max 100)
+            "-d example.com",
+          ]
+    networks:
+      - proxy-tier
+
+networks:
+  proxy-tier:
+    external:
+      name: www-network

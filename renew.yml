@@ -1,0 +1,21 @@
+version: '3'
+
+services:
+  certbot:
+    image: certbot/certbot
+    container_name: certbot
+    volumes:
+      - ../00-nginx-proxy/ssl:/etc/letsencrypt # SSL certs
+      - ../00-nginx-proxy/ssl-log:/var/log/letsencrypt # Logs
+    command: [
+            "renew",
+          ]
+    networks:
+      - proxy-tier
+    labels:
+      cron.schedule: "@weekly"
+
+networks:
+  proxy-tier:
+    external:
+      name: www-network
